@@ -18,9 +18,9 @@ object ExactlyOnceTestForEachKill extends App {
   // configure the number of cores and RAM to use
   val conf = new SparkConf()
     //.setMaster("local[5]")
-    .setMaster("spark://127.0.0.1:7077")
-    .set("spark.cassandra.connection.host", "localhost")
-    .set("spark.executor.memory", "1G")
+    //.setMaster("spark://127.0.0.1:7077")
+    //.set("spark.cassandra.connection.host", "localhost")
+    //.set("spark.executor.memory", "1G")
     .setAppName("exactly-once")
 
   val sc = SparkContext.getOrCreate(conf)
@@ -28,7 +28,7 @@ object ExactlyOnceTestForEachKill extends App {
   val ssc = new StreamingContext(sc, Seconds(1))
 
   // configure kafka connection and topic
-  val kafkaParams = Map[String, String]("metadata.broker.list" -> "localhost:9092")
+  val kafkaParams = Map[String, String]("metadata.broker.list" -> "localhost:9092", "auto.offset.reset" -> "largest")
 
   def getFromOffsets(): Map[TopicAndPartition, Long] = {
     Map[TopicAndPartition, Long](TopicAndPartition("exactlyonce", 0) -> 0L)
@@ -37,7 +37,9 @@ object ExactlyOnceTestForEachKill extends App {
   val t: Map[TopicAndPartition, Long] = getFromOffsets()
 
   val messageHandler: MessageAndMetadata[String, String] => Tuple2[String, String] = mmd => (mmd.key, mmd.message)
-  val kafkaStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder, Tuple2[String, String]](ssc, kafkaParams, getFromOffsets(), messageHandler)
+  //val kafkaStream2 = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder, Tuple2[String, String]](ssc, kafkaParams, getFromOffsets(), messageHandler)
+
+  val kafkaStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, Set("exactlyonce"))
 
   kafkaStream.foreachRDD(rdd => {
     rdd.asInstanceOf[HasOffsetRanges].offsetRanges.foreach { range => println(s"SAVING RESULT TO C*: p:${range.partition} => [${range.fromOffset}-${range.untilOffset}]") }
