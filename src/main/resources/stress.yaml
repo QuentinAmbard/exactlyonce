@@ -1,0 +1,98 @@
+# launch simple inserts
+# cassandra-stress user profile=./stress.yaml n=10000000 cl=ONE ops\(insert=1\) -mode native cql3 -rate threads=512
+# cassandra-stress user profile=./stress.yaml n=1000000 ops\(insert=1000,likelyquery2=1,likelyquery3=1\)
+
+# Keyspace Name
+keyspace: umbrella
+
+# The CQL for creating a keyspace (optional if it already exists)
+keyspace_definition: |
+  CREATE KEYSPACE umbrella WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
+
+# Table name
+table: sensor_data
+
+# The CQL for creating a table you wish to stress (optional if it already exists)
+table_definition:
+  create table sensor_data (
+  sensor_id uuid,
+  bucket_ts timestamp,
+  time timestamp,
+  hive int,
+  level int,
+  wing text,
+  sensor_type text,
+  vendor text,
+  value float,
+  latlong text,
+  primary key ((sensor_id, bucket_ts), time))
+### Column Distribution Specifications ###
+
+columnspec:
+  - name: sensor_id
+    size: fixed(32)
+    population: uniform(0..13600)
+
+  - name: bucket_ts
+    size: fixed(8)
+    population: uniform(0..90)
+
+  - name: time
+    size: fixed(8)
+    cluster: uniform(0..17280)
+
+  - name: hive
+    size: fixed(4)
+    population: uniform(0..4)
+
+  - name: level
+    size: fixed(4)
+    population: gaussian(10..37)
+
+  - name: wing
+    size: gaussian(5..20)
+    population: gaussian(5..20)
+
+  - name: sensor_type
+    size: uniform(10..20)
+    population: gaussian(3..20)
+
+  - name: vendor
+    size: uniform(10..20)
+    population: gaussian(3..20)
+
+  - name: value
+    size: gaussian(4..4)
+    population: gaussian(0..100)
+
+  - name: latlong
+    size: fixed(20)
+    population: gaussian(10000..15000)
+
+
+### Batch Ratio Distribution Specifications ###
+
+insert:
+  partitions: fixed(1)            # Our partition key is the domain so only insert one per batch
+
+  select:  fixed(1)/1000        # We have 1000 posts per domain so 1/1000 will allow 1 post per batch
+
+  batchtype: UNLOGGED             # Unlogged batches
+
+
+#
+# A list of queries you wish to run against the schema
+#
+queries:
+   likelyquery0:
+    cql: SELECT * FROM sensor_data WHERE sensor_id = ? AND bucket_ts = ?
+    fields: samerow
+   likelyquery1:
+    cql: SELECT * FROM sensor_data WHERE sensor_id = ? AND bucket_ts = ? AND time = ?
+    fields: samerow
+   likelyquery2:
+    cql: select * from sensor_data where solr_query='{"q":"*:*", "facet":{"field":"wing"}, "fq":"+{!geofilt pt=\"22.798227, 119.9727\" sfield=latlong d=5}"}';
+    fields: samerow
+   likelyquery3:
+    cql: select * from sensor_data where solr_query='{"q":"*:*", "facet":{"field":"level"}}';
+    fields: samerow
