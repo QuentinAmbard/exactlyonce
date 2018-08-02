@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Fri May 19 15:06:05 CEST 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-015c-20d0-abb6-00002bfb4308 
+on database directory /home/quentin/projects/spark-scala-kafka/src/main/python/metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@76adda1e 
+Loaded from file:/home/quentin/tools/spark/spark-1.6.3-bin-hadoop2.6/lib/spark-assembly-1.6.3-hadoop2.6.0.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_111-b14
+user.dir=/home/quentin/projects/spark-scala-kafka/src/main/python
+os.name=Linux
+os.arch=amd64
+os.version=4.8.0-49-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
