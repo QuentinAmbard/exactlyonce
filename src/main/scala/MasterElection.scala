@@ -18,18 +18,14 @@ import scala.collection.JavaConversions._
   */
 /*
 
-CREATE TABLE masters (
-    type text PRIMARY KEY,
-    active boolean,
-    node_id int,
-    time timestamp
-) WITH default_time_to_live = 5
+  //REQUIREMENT:
+  // Master election.
+  // No more than 1 node can flag itself as master at the same time.
+  // "Master priority": there is a priority for a node to be master: 1,2,3,4 => if master 1 dies, node 2 must be the next elected master (not 3 as long as 2 is alive)
+  // Short election time (first test at 5 sec)
+  // Possibility to force a node to become master.
 
-CREATE TABLE node_status (
-    node_id int PRIMARY KEY,
-    state text
-) WITH default_time_to_live = 5
-
+  //NOTES:
   //Exception type not properly handled
   //Use prepared statement everywhere
   //request at CL=QUORUM
@@ -37,6 +33,18 @@ CREATE TABLE node_status (
   //TODO speculative retry? We need to check the response time of a LWT with iter-DC latencies to make sure the 500ms timeout is also fine.
     If not, we'll have to create a separate profile for LWT queries with different speculative retry config.
 
+  //TABLES:
+  CREATE TABLE masters (
+      type text PRIMARY KEY,
+      active boolean,
+      node_id int,
+      time timestamp
+  ) WITH default_time_to_live = 5
+
+  CREATE TABLE node_status (
+      node_id int PRIMARY KEY,
+      state text
+  ) WITH default_time_to_live = 5
   */
 
 object MasterElection {
