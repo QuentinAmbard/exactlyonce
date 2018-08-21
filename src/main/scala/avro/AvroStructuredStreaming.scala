@@ -73,6 +73,10 @@ object AvroStructuredStreaming extends App {
     UserTest(userRecord.get("firstname").toString, userRecord.get("lastname").toString)
   })
 
+  val addKey = udf((value: Map[String, String]) => {
+    value + ("yet-another_key" -> "toto")
+  })
+
   val ds = sparkSession.readStream
     .format("org.apache.spark.sql.kafka010.KafkaSourceProvider")
     .option("kafka.bootstrap.servers", "localhost:9092")

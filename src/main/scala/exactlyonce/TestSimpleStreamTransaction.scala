@@ -12,8 +12,6 @@ object TestSimpleStreamTransaction extends App {
   val conf = new SparkConf().setAppName("exactly-once")
     .setMaster("local[5]")
     .set("spark.streaming.kafka.allowNonConsecutiveOffsets" ,"true")
-    .set("spark.streaming.kafka.alignRangesToCommittedTransaction" ,"true")
-    .set("spark.streaming.kafka.offsetSearchRewind" , "10")
 
   val ssc = new StreamingContext(conf, Seconds(5))
 
@@ -24,7 +22,7 @@ object TestSimpleStreamTransaction extends App {
     "group.id" -> "my_group",
     "isolation.level" -> "read_committed",
     //"transactional.id" -> "toto",
-    "auto.offset.reset" -> "earliest",
+    "auto.offset.reset" -> "latest",
     "enable.auto.commit" -> (false: java.lang.Boolean))
 
   import org.apache.log4j.{Level, Logger}
@@ -33,14 +31,16 @@ object TestSimpleStreamTransaction extends App {
   Logger.getLogger("org.apache.spark.streaming.kafka010.DirectKafkaInputDStream").setLevel(Level.TRACE)
 
 
+  var size  = 0
   val topics = Array("abort")
   val kafkaStream = KafkaUtils.createDirectStream[String, String](ssc, PreferConsistent, Subscribe[String, String](topics, kafkaParams))
   kafkaStream.foreachRDD(rdd => {
-    //rdd.asInstanceOf[HasOffsetRanges].offsetRanges.foreach { range => println(s"SAVING RESULT: p:${range.partition} => [${range.fromOffset}-${range.untilOffset}] (size: ${range.recordNumber}") }
+    rdd.asInstanceOf[HasOffsetRanges].offsetRanges.foreach { range => println(s"SAVING RESULT: p:${range.partition} => [${range.fromOffset}-${range.untilOffset}]") }  //(size: ${range.recordNumber}
     println(s"count = ${rdd.count()}")
     val count = rdd.aggregate(0)((a, string) => a +1, (a,b) => a+b)
+    size = size + count
     rdd.foreach(println)
-    println(s"real count = ${count}")
+    println(s"TOTAL = $size. real count = ${count}")
   })
   ssc.start()
   ssc.awaitTermination()

@@ -26,12 +26,15 @@ object ExactlyOnceConsumerTransactionTest extends App {
 
   private val topicPartition = new TopicPartition("abort", 0)
   consumer.assign(List(topicPartition).asJava)
+  println(consumer.endOffsets(List(topicPartition).asJava))
   consumer.seekToEnd(List(topicPartition).asJava)
   println(consumer.position(topicPartition))
   consumer.seek(topicPartition, 0)
-  val records: ConsumerRecords[String, String] = consumer.poll(1000)
-  for (record <- records.asScala) {
-    println(s"${record.key()} - ${record.offset()} -  ${record.value()}")
+  while(true) {
+    val records: ConsumerRecords[String, String] = consumer.poll(1000)
+    for (record <- records.asScala) {
+      println(s"${record.key()} - ${record.offset()} -  ${record.value()}")
+    }
   }
 
 

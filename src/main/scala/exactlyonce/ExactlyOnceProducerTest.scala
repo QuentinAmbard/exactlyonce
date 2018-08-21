@@ -8,12 +8,19 @@ import org.apache.kafka.clients.producer.{Callback, ProducerRecord, RecordMetada
 import scala.util.Random
 
 
-object ExactlyOnceProducerTest extends App {
+object ExactlyOnceProducerTest {
+
+  var kafkaHost = "localhost:9092"
+  def main(args: Array[String]): Unit = {
+    if(args.length>0) {
+      kafkaHost = args(0)
+    }
+  }
 
   object kafka {
-    val producer = {
+    lazy val producer = {
       val props = new Properties()
-      props.put("bootstrap.servers", "localhost:9092")
+      props.put("bootstrap.servers", kafkaHost)
       props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
       props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
       import org.apache.kafka.clients.producer.KafkaProducer
