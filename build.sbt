@@ -9,9 +9,10 @@ version := "0.1"
 scalaVersion := "2.11.1"
 //scalaVersion := "2.10.7"
 
-val sparkVersion = "2.2.0"
+//val sparkVersion = "2.2.0"
 //val sparkVersion = "2.3.1"
-//val sparkVersion = "2.4.0-SNAPSHOT"
+val sparkVersion = "2.2.3"
+//val sparkVersion = "2.0.2"
 val sparkVersion_snapshot = "2.4.0-SNAPSHOT"
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.8.7"
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.7"
@@ -49,7 +50,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion,
   "org.apache.kafka" %% "kafka" % "1.1.1",
   "io.confluent" % "kafka-avro-serializer" % "5.0.0",
-  "org.apache.avro" % "avro" % "1.8.2"
+  "org.apache.avro" % "avro" % "1.8.2",
+  "org.coursera" % "dropwizard-metrics-datadog" % "1.1.13"
 
 )
 

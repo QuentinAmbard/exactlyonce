@@ -1,5 +1,6 @@
 package exactlyonce
 
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
@@ -12,6 +13,7 @@ object TestSimpleStreamTransaction extends App {
   val conf = new SparkConf().setAppName("exactly-once")
     .setMaster("local[5]")
     .set("spark.streaming.kafka.allowNonConsecutiveOffsets" ,"true")
+    .set("spark.streaming.kafka.maxRatePerPartition", "50")
 
   val ssc = new StreamingContext(conf, Seconds(5))
 
@@ -19,10 +21,11 @@ object TestSimpleStreamTransaction extends App {
     "bootstrap.servers" -> "localhost:9092",
     "key.deserializer" -> classOf[StringDeserializer],
     "value.deserializer" -> classOf[StringDeserializer],
-    "group.id" -> "my_group",
+    "group.id" -> "test",
     "isolation.level" -> "read_committed",
-    //"transactional.id" -> "toto",
+  //"transactional.id" -> "toto",
     "auto.offset.reset" -> "latest",
+    ConsumerConfig.MAX_POLL_RECORDS_CONFIG -> "40",
     "enable.auto.commit" -> (false: java.lang.Boolean))
 
   import org.apache.log4j.{Level, Logger}

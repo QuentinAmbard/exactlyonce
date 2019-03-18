@@ -46,7 +46,7 @@ import scala.collection.JavaConversions._
       state text
   ) WITH default_time_to_live = 5
   */
-
+/*
 object MasterElection {
 
   val TABLE_TTL = 5000
@@ -248,3 +248,5 @@ object MasterElection {
     */
   def getNodesIdWithHigherPriority(): List[Int] = ???
 }
+
+*/

@@ -16,6 +16,8 @@ object TestJoinWithCassandra extends App {
     .set("spark.executor.memory", "1G")
     .setAppName("exactly-once")
 
+
+
   /**
     * Read from sparksql
     */
@@ -28,6 +30,7 @@ object TestJoinWithCassandra extends App {
 //    .createOrReplaceTempView("test2")
 //  session.sql("SELECT map['test'] FROM test2").show()
 
+  //spark.read.json(Seq("aze").toDS()).createOrReplaceTempView("direct_raw_baby_name")
 
   /**
     * WRITE TIMEUUID TO CASSANDRA WITH DATAFRAME

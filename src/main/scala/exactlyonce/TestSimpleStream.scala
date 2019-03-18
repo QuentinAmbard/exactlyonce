@@ -9,7 +9,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 object TestSimpleStream {
 
-  val conf = new SparkConf().setAppName("exactly-once")
+  val conf = new SparkConf().setAppName("exactly-once").setMaster("local[2]")
   val ssc = new StreamingContext(conf, Seconds(5))
 
   var kafkaHost = "localhost:9092"
@@ -27,11 +27,10 @@ object TestSimpleStream {
     "auto.offset.reset" -> "latest",
     "enable.auto.commit" -> (false: java.lang.Boolean))
 
-  val topics = Array("exactlyonce")
+  val topics = Array("exactlyoncea")
   val kafkaStream = KafkaUtils.createDirectStream[String, String](ssc, PreferConsistent, Subscribe[String, String](topics, kafkaParams))
   kafkaStream.foreachRDD(rdd => {
     rdd.asInstanceOf[HasOffsetRanges].offsetRanges.foreach { range => println(s"SAVING RESULT: p:${range.partition} => [${range.fromOffset}-${range.untilOffset}]") }
-    println(rdd.count())
     val count = rdd.aggregate(0)((a, string) => a +1, (a,b) => a+b)
     println(s"real count = ${count}")
 

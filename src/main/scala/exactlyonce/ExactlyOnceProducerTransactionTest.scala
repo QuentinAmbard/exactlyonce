@@ -10,7 +10,9 @@ import scala.util.Random
 object ExactlyOnceProducerTransactionTest {
 
   var kafkaHost = "localhost:9092"
-  var size = 100000
+  //var kafkaHost = "127.0.0.1:37995"
+
+  var size = 1000
   def main(args: Array[String]): Unit = {
     if(args.length>0) {
       kafkaHost = args(0)
@@ -72,9 +74,13 @@ object ExactlyOnceProducerTransactionTest {
       size = size - messageToSend
       println(s"commit transaction $size")
     }
-    Thread.sleep(300)
+    Thread.sleep(30)
     //println(message)
   }
+//  kafka.producer.beginTransaction()
+//  val message = new ProducerRecord("testpoll2", s"""{"abort": "false", "name": "${Random.alphanumeric take 10 mkString ("")}", "age": ${test.nextInt(99)}}""")
+//  kafka.producer.send(message)
+//  kafka.producer.commitTransaction()
   println("closing")
   kafka.producer.close()
   println("closed")
